@@ -52,6 +52,7 @@ STATUS createCurlRequest(HTTP_REQUEST_VERB curlVerb, PCHAR url, PCHAR body, STRE
 
     STRNCPY(pCurlRequest->requestInfo.region, region, MAX_REGION_NAME_LEN);
     STRNCPY(pCurlRequest->requestInfo.url, url, MAX_URI_CHAR_LEN);
+    STRNCPY(pCurlRequest->requestInfo.service, KINESIS_VIDEO_SERVICE_NAME, MAX_SERVICE_NAME_LEN);
     if (certPath != NULL) {
         STRNCPY(pCurlRequest->requestInfo.certPath, certPath, MAX_PATH_LEN);
     }

@@ -36,6 +36,7 @@ STATUS createRequestInfo(PCHAR url, PCHAR body, PCHAR region, PCHAR certPath,
     pRequestInfo->callAfter = pRequestInfo->currentTime;
     STRNCPY(pRequestInfo->region, region, MAX_REGION_NAME_LEN);
     STRNCPY(pRequestInfo->url, url, MAX_URI_CHAR_LEN);
+    STRNCPY(pRequestInfo->service, KINESIS_VIDEO_SERVICE_NAME, MAX_SERVICE_NAME_LEN);
     if (certPath != NULL) {
         STRNCPY(pRequestInfo->certPath, certPath, MAX_PATH_LEN);
     }

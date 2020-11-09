@@ -84,8 +84,8 @@ STATUS generateAwsSigV4Signature(PRequestInfo pRequestInfo, PCHAR dateTimeStr, B
     CHK_STATUS(generateRequestHmac(hmac, hmacSize, (PBYTE) pRequestInfo->region,
                                    (UINT32) STRLEN(pRequestInfo->region),
                                    hmac, &hmacSize));
-    CHK_STATUS(generateRequestHmac(hmac, hmacSize, (PBYTE) KINESIS_VIDEO_SERVICE_NAME,
-                                   (UINT32) STRLEN(KINESIS_VIDEO_SERVICE_NAME),
+    CHK_STATUS(generateRequestHmac(hmac, hmacSize, (PBYTE) pRequestInfo->service,
+                                   (UINT32) STRLEN(pRequestInfo->service),
                                    hmac, &hmacSize));
     CHK_STATUS(generateRequestHmac(hmac, hmacSize, (PBYTE) AWS_SIG_V4_SIGNATURE_END,
                                    (UINT32) STRLEN(AWS_SIG_V4_SIGNATURE_END),
@@ -147,17 +147,22 @@ STATUS signAwsRequestInfo(PRequestInfo pRequestInfo)
     CHK_STATUS(setRequestHeader(pRequestInfo, AWS_SIG_V4_HEADER_AMZ_DATE, 0, dateTimeStr, 0));
     CHK_STATUS(setRequestHeader(pRequestInfo, AWS_SIG_V4_CONTENT_TYPE_NAME, 0, AWS_SIG_V4_CONTENT_TYPE_VALUE, 0));
 
+    BYTE contentSHA256Buf[SHA256_DIGEST_LENGTH * 2 + 1];
+    if (pRequestInfo->body == NULL) {
+        // Streaming treats this portion as if the body were empty
+        CHK_STATUS(hexEncodedSha256((PBYTE) EMPTY_STRING, 0, contentSHA256Buf));
+    } else {
+        // standard signing
+        CHK_STATUS(hexEncodedSha256((PBYTE) pRequestInfo->body, pRequestInfo->bodySize, contentSHA256Buf));
+    }
+
+    CHK_STATUS(setRequestHeader(pRequestInfo, AWS_SIG_V4_X_AMZ_CONTENT_SHA256, 0, contentSHA256Buf, 0));
+
     // Set the content-length
     if (pRequestInfo->body != NULL) {
         CHK_STATUS(ULTOSTR(pRequestInfo->bodySize, contentLenBuf, SIZEOF(contentLenBuf), 10, NULL));
         CHK_STATUS(setRequestHeader(pRequestInfo, (PCHAR) "content-length", 0,contentLenBuf, 0));
     }
-
-    // Generate the signature
-    CHK_STATUS(generateAwsSigV4Signature(pRequestInfo, dateTimeStr, TRUE, &pSignatureInfo, &len));
-
-    // Set the header
-    CHK_STATUS(setRequestHeader(pRequestInfo, AWS_SIG_V4_HEADER_AUTH, 0, pSignatureInfo, len));
 
     // Set the security token header if provided
     if (pRequestInfo->pAwsCredentials->sessionTokenLen != 0) {
@@ -167,6 +172,12 @@ STATUS signAwsRequestInfo(PRequestInfo pRequestInfo)
                                         pRequestInfo->pAwsCredentials->sessionToken,
                                         pRequestInfo->pAwsCredentials->sessionTokenLen));
     }
+
+    // Generate the signature
+    CHK_STATUS(generateAwsSigV4Signature(pRequestInfo, dateTimeStr, TRUE, &pSignatureInfo, &len));
+
+    // Set the header
+    CHK_STATUS(setRequestHeader(pRequestInfo, AWS_SIG_V4_HEADER_AUTH, 0, pSignatureInfo, len));
 
 CleanUp:
 
@@ -710,7 +721,7 @@ STATUS generateCredentialScope(PRequestInfo pRequestInfo, PCHAR dateTimeStr, PCH
     // Calculate the max string length with a null terminator at the end
     scopeLen = SIGNATURE_DATE_TIME_STRING_LEN + 1 +
                MAX_REGION_NAME_LEN + 1 +
-               (UINT32) STRLEN(KINESIS_VIDEO_SERVICE_NAME) + 1 +
+               (UINT32) STRLEN(pRequestInfo->service) + 1 +
                (UINT32) STRLEN(AWS_SIG_V4_SIGNATURE_END) + 1;
 
     // Early exit on buffer calculation
@@ -719,7 +730,7 @@ STATUS generateCredentialScope(PRequestInfo pRequestInfo, PCHAR dateTimeStr, PCH
     scopeLen = (UINT32) SNPRINTF(pScope, *pScopeLen, CREDENTIAL_SCOPE_TEMPLATE,
                                  SIGNATURE_DATE_STRING_LEN, dateTimeStr,
                                  pRequestInfo->region,
-                                 KINESIS_VIDEO_SERVICE_NAME, AWS_SIG_V4_SIGNATURE_END);
+                                 pRequestInfo->service, AWS_SIG_V4_SIGNATURE_END);
     CHK(scopeLen > 0 && scopeLen <= *pScopeLen, STATUS_BUFFER_TOO_SMALL);
 
 CleanUp:
@@ -744,7 +755,7 @@ STATUS generateEncodedCredentials(PRequestInfo pRequestInfo, PCHAR dateTimeStr, 
     credsLen = MAX_ACCESS_KEY_LEN + 1 +
                SIGNATURE_DATE_TIME_STRING_LEN + 1 +
                MAX_REGION_NAME_LEN + 1 +
-               (UINT32) STRLEN(KINESIS_VIDEO_SERVICE_NAME) + 1 +
+               (UINT32) STRLEN(pRequestInfo->service) + 1 +
                (UINT32) STRLEN(AWS_SIG_V4_SIGNATURE_END) + 1;
 
     // Early exit on buffer calculation
@@ -755,7 +766,7 @@ STATUS generateEncodedCredentials(PRequestInfo pRequestInfo, PCHAR dateTimeStr, 
                                  pRequestInfo->pAwsCredentials->accessKeyId,
                                  SIGNATURE_DATE_STRING_LEN, dateTimeStr,
                                  pRequestInfo->region,
-                                 KINESIS_VIDEO_SERVICE_NAME, AWS_SIG_V4_SIGNATURE_END);
+                                 pRequestInfo->service, AWS_SIG_V4_SIGNATURE_END);
     CHK(credsLen > 0 && credsLen <= *pCredsLen, STATUS_BUFFER_TOO_SMALL);
 
 CleanUp:

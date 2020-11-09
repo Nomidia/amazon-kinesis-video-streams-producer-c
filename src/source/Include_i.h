@@ -64,6 +64,7 @@ typedef enum {
 #include "StreamInfoProvider.h"
 #include "IotAuthCallback.h"
 #include "FileLoggerPlatformCallbackProvider.h"
+#include "S3CurlApiCallbacks.h"
 
 ////////////////////////////////////////////////////
 // Project internal defines

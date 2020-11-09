@@ -201,6 +201,11 @@ extern "C" {
 #define CONTROL_PLANE_URI_PREFIX                    "https://"
 
 /**
+ * Max service name
+ */
+#define MAX_SERVICE_NAME_LEN                         128
+
+/**
  * KVS service name
  */
 #define KINESIS_VIDEO_SERVICE_NAME                  "kinesisvideo"
@@ -383,6 +388,9 @@ struct __RequestInfo {
 
     // Region
     CHAR region[MAX_REGION_NAME_LEN + 1];
+
+    // Service
+    CHAR service[MAX_SERVICE_NAME_LEN + 1];
 
     // Current time when request was created
     UINT64 currentTime;
@@ -827,6 +835,9 @@ PUBLIC_API STATUS freeFileLogger();
  */
 #define SET_FILE_LOGGER()               createFileLogger(FILE_LOGGER_STRING_BUFFER_SIZE, FILE_LOGGER_LOG_FILE_COUNT, (PCHAR) FILE_LOGGER_LOG_FILE_DIRECTORY_PATH, TRUE, TRUE, NULL)
 #define RESET_FILE_LOGGER()             freeFileLogger()
+
+typedef SIZE_T (*S3CurlCallbackFunc)(PCHAR, SIZE_T, SIZE_T, PVOID);
+STATUS iotCurlHandlerForS3(PCHAR, PCHAR, PCHAR, PAwsCredentialProvider, S3CurlCallbackFunc);
 
 #ifdef  __cplusplus
 }

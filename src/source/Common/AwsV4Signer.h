@@ -20,6 +20,7 @@ extern "C" {
 #define AWS_SIG_V4_CONTENT_TYPE_NAME            (PCHAR) "content-type"
 #define AWS_SIG_V4_CONTENT_LENGTH_NAME          (PCHAR) "content-length"
 #define AWS_SIG_V4_CONTENT_TYPE_VALUE           (PCHAR) "application/json"
+#define AWS_SIG_V4_X_AMZ_CONTENT_SHA256         (PCHAR) "x-amz-content-sha256"
 
 // Datetime string length
 #define SIGNATURE_DATE_TIME_STRING_LEN          17
@@ -70,8 +71,7 @@ extern "C" {
 #define MIN_AWS_SIGV4_CREDENTIALS_EXPIRATION_IN_SECONDS 1
 
 // Checks whether a canonical header
-#define IS_CANONICAL_HEADER_NAME(h)             ((0 != STRCMP((h), AWS_SIG_V4_HEADER_AMZ_SECURITY_TOKEN)) && \
-                                                (0 != STRCMP((h), AWS_SIG_V4_CONTENT_TYPE_NAME)) && \
+#define IS_CANONICAL_HEADER_NAME(h)             ((0 != STRCMP((h), AWS_SIG_V4_CONTENT_TYPE_NAME)) && \
                                                 (0 != STRCMP((h), AWS_SIG_V4_CONTENT_LENGTH_NAME)) && \
                                                 (0 != STRCMP((h), AWS_SIG_V4_HEADER_AUTH)))
 
