@@ -7,9 +7,7 @@
 #define S3_DEBUG 1
 
 SIZE_T writeCurlResponseCallbackForS3(PCHAR pBuffer, SIZE_T size, SIZE_T numItems, PVOID customData);
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
+
 SIZE_T writeCurlResponseCallbackForS3(PCHAR pBuffer, SIZE_T size, SIZE_T numItems, PVOID customData)
 {
     PCallInfo pCallInfo = (PCallInfo) customData;
@@ -26,11 +24,6 @@ SIZE_T writeCurlResponseCallbackForS3(PCHAR pBuffer, SIZE_T size, SIZE_T numItem
 
     PRINTF("dataSize = %d, total responseDataLen = %d\n", dataSize, pCallInfo->responseDataLen);
     //return CURL_READFUNC_ABORT;
-    static int fd = -1;
-    if(fd < 0)
-        fd = open("/var/fat32_0/download.dat", O_CREAT|O_TRUNC|O_WRONLY);
-    if(fd > 0)
-        write(fd, pBuffer, dataSize);
 
     return dataSize;
 }

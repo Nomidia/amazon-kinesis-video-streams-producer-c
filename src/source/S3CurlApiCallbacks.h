@@ -6,16 +6,17 @@ CURL API callbacks internal include file
 
 #pragma once
 
-#ifdef  __cplusplus
+#ifdef __cplusplus
 extern "C" {
 #endif
-#define S3_CA_CERT_PEM_FILE_SUFFIX                          ".pem"
+#define S3_CA_CERT_PEM_FILE_SUFFIX ".pem"
 
 #define S3_REQUEST_CONNECTION_TIMEOUT (20 * HUNDREDS_OF_NANOS_IN_A_SECOND)
 #define S3_REQUEST_COMPLETION_TIMEOUT SERVICE_CALL_INFINITE_TIMEOUT
-#define S3_IOT_CREDENTIAL_FETCH_GRACE_PERIOD               (5 * HUNDREDS_OF_NANOS_IN_A_SECOND + MIN_STREAMING_TOKEN_EXPIRATION_DURATION + STREAMING_TOKEN_EXPIRATION_GRACE_PERIOD)
+#define S3_IOT_CREDENTIAL_FETCH_GRACE_PERIOD                                                                                                         \
+    (5 * HUNDREDS_OF_NANOS_IN_A_SECOND + MIN_STREAMING_TOKEN_EXPIRATION_DURATION + STREAMING_TOKEN_EXPIRATION_GRACE_PERIOD)
 
-#define S3_SERVICE_NAME                  "s3"
+#define S3_SERVICE_NAME "s3"
 
 typedef STATUS (*S3BlockingServiceCallFunc)(PRequestInfo, PCallInfo);
 
@@ -52,12 +53,11 @@ typedef struct __S3IotCredentialProvider {
 
     // Service call functionality
     S3BlockingServiceCallFunc serviceCallFn;
-}S3IotCredentialProvider, *PS3IotCredentialProvider;
-
+} S3IotCredentialProvider, *PS3IotCredentialProvider;
 
 STATUS blockingCurlCallForS3(PRequestInfo, PCallInfo, S3CurlCallbackFunc);
 
-#ifdef  __cplusplus
+#ifdef __cplusplus
 }
 #endif
-#endif  /* __KINESIS_VIDEO_S3_CURL_API_CALLBACKS_INCLUDE_I__ */
+#endif /* __KINESIS_VIDEO_S3_CURL_API_CALLBACKS_INCLUDE_I__ */
