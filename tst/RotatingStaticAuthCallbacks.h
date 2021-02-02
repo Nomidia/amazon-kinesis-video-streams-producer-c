@@ -4,7 +4,7 @@
 
 #pragma once
 
-#ifdef  __cplusplus
+#ifdef __cplusplus
 extern "C" {
 #endif
 
@@ -21,13 +21,19 @@ struct __RotatingStaticAuthCallbacks {
     AuthCallbacks authCallbacks;
 
     // Pointer to Static Aws Credentials
-    PAwsCredentials  pAwsCredentials;
+    PAwsCredentials pAwsCredentials;
 
     // Rotation Period
     UINT64 rotationPeriod;
 
     // Back pointer to the callback provider object
     PCallbacksProvider pCallbacksProvider;
+
+    // Members for fault injection
+    volatile UINT32 invokeCount;
+    volatile UINT32 failCount;
+    volatile UINT32 recoverCount;
+    volatile STATUS retStatus;
 };
 
 typedef struct __RotatingStaticAuthCallbacks* PRotatingStaticAuthCallbacks;
@@ -41,10 +47,10 @@ STATUS freeRotatingStaticAuthCallbacks(PAuthCallbacks*);
 
 // The callback functions
 STATUS getStreamingTokenEnvVarFunc(UINT64, PCHAR, STREAM_ACCESS_MODE, PServiceCallContext);
-STATUS getSecurityTokenEnvVarFunc(UINT64, PBYTE *, PUINT32, PUINT64);
+STATUS getSecurityTokenEnvVarFunc(UINT64, PBYTE*, PUINT32, PUINT64);
 STATUS freeRotatingStaticAuthCallbacksFunc(PUINT64);
 
-#ifdef  __cplusplus
+#ifdef __cplusplus
 }
 #endif
 #endif /* __KINESISVIDEO_ROTATING_AUTH_CALLBACKS_H__ */
