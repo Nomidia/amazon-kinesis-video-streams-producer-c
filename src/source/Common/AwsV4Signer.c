@@ -718,8 +718,8 @@ STATUS generateEncodedCredentials(PRequestInfo pRequestInfo, PCHAR dateTimeStr, 
     CHK(pRequestInfo != NULL && dateTimeStr != NULL && pCredsLen != NULL, STATUS_NULL_ARG);
 
     // Calculate the max string length with '/' and a null terminator at the end
-    credsLen = MAX_ACCESS_KEY_LEN + 1 + SIGNATURE_DATE_TIME_STRING_LEN + 1 + MAX_REGION_NAME_LEN + 1 + (UINT32) STRLEN(pRequestInfo->service) +
-        1 + (UINT32) STRLEN(AWS_SIG_V4_SIGNATURE_END) + 1;
+    credsLen = MAX_ACCESS_KEY_LEN + 1 + SIGNATURE_DATE_TIME_STRING_LEN + 1 + MAX_REGION_NAME_LEN + 1 + (UINT32) STRLEN(pRequestInfo->service) + 1 +
+        (UINT32) STRLEN(AWS_SIG_V4_SIGNATURE_END) + 1;
 
     // Early exit on buffer calculation
     CHK(pCreds != NULL, retStatus);

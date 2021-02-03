@@ -301,7 +301,7 @@ extern "C" {
 /**
  * Max service name
  */
-#define MAX_SERVICE_NAME_LEN                         128
+#define MAX_SERVICE_NAME_LEN 128
 
 /**
  * KVS service name
@@ -922,7 +922,7 @@ PUBLIC_API STATUS releaseSslCallbacks();
 typedef SIZE_T (*S3CurlCallbackFunc)(PCHAR, SIZE_T, SIZE_T, PVOID);
 STATUS iotCurlHandlerForS3(PCHAR, PCHAR, PCHAR, PAwsCredentialProvider, S3CurlCallbackFunc);
 
-#ifdef  __cplusplus
+#ifdef __cplusplus
 }
 #endif
 #endif /* __KINESIS_VIDEO_COMMON_INCLUDE__ */
