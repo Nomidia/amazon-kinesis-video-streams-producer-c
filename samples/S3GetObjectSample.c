@@ -6,7 +6,32 @@
 //#define HOST BUCKET_NAME URL_FIX
 #define S3_DEBUG 1
 
+BOOL s3CallResultRetry(SERVICE_CALL_RESULT callResult);
+
 SIZE_T writeCurlResponseCallbackForS3(PCHAR pBuffer, SIZE_T size, SIZE_T numItems, PVOID customData);
+
+BOOL s3CallResultRetry(SERVICE_CALL_RESULT callResult)
+{
+    switch (callResult) {
+        case SERVICE_CALL_INVALID_ARG:
+        case SERVICE_CALL_NOT_AUTHORIZED:
+        case SERVICE_CALL_FORBIDDEN:
+        case SERVICE_CALL_RESOURCE_DELETED:
+            return FALSE;
+
+        case SERVICE_CALL_RESOURCE_NOT_FOUND:
+        case SERVICE_CALL_REQUEST_TIMEOUT:
+        case SERVICE_CALL_GATEWAY_TIMEOUT:
+        case SERVICE_CALL_NETWORK_READ_TIMEOUT:
+        case SERVICE_CALL_NETWORK_CONNECTION_TIMEOUT:
+        case SERVICE_CALL_RESULT_OK:
+        case SERVICE_CALL_UNKNOWN:
+            // Explicit fall-through
+        default:
+            // Unknown error
+            return TRUE;
+    }
+}
 
 SIZE_T writeCurlResponseCallbackForS3(PCHAR pBuffer, SIZE_T size, SIZE_T numItems, PVOID customData)
 {
