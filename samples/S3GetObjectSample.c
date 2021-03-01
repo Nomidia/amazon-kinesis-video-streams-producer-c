@@ -35,6 +35,7 @@ INT32 main(INT32 argc, CHAR* argv[])
         return -1;
     }
     STATUS retStatus = STATUS_SUCCESS;
+    UINT32 callResult = SERVICE_CALL_RESULT_OK;
     PCHAR streamName = NULL, region = NULL, cacertPath = NULL;
     SET_INSTRUMENTED_ALLOCATORS();
 
@@ -67,12 +68,16 @@ INT32 main(INT32 argc, CHAR* argv[])
     // PRINTF("url:%s\n", s3Url);
 
 #if S3_DEBUG
-    retStatus = iotCurlHandlerForS3(s3Url, region, cacertPath, pCredentialProvider, writeCurlResponseCallbackForS3);
+    retStatus = iotCurlHandlerForS3(s3Url, region, cacertPath, pCredentialProvider, writeCurlResponseCallbackForS3, &callResult);
 #endif
 CleanUp:
-
+    printf("callResult = %d\n", callResult);
     if (STATUS_FAILED(retStatus)) {
         defaultLogPrint(LOG_LEVEL_ERROR, "", "Failed with status 0x%08x\n", retStatus);
+
+        if(serviceCallResultRetry((SERVICE_CALL_RESULT)callResult)) {
+            defaultLogPrint(LOG_LEVEL_DEBUG, "", "retryable\n");
+        }
     }
 
 #if S3_DEBUG
