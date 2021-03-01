@@ -7,7 +7,7 @@
 // Forward declaration
 STATUS createCurlHeaderList(PRequestInfo pRequestInfo, struct curl_slist** ppHeaderList);
 
-STATUS blockingCurlCallForS3(PRequestInfo pRequestInfo, PCallInfo pCallInfo, S3CurlCallbackFunc writeFn)
+STATUS blockingCurlCallForS3(PRequestInfo pRequestInfo, PCallInfo pCallInfo, S3CurlCallbackFunc writeFn, PUINT32 pCallResult)
 {
     ENTERS();
     STATUS retStatus = STATUS_SUCCESS;
@@ -81,7 +81,12 @@ STATUS blockingCurlCallForS3(PRequestInfo pRequestInfo, PCallInfo pCallInfo, S3C
     if (res != CURLE_OK) {
         curl_easy_getinfo(curl, CURLINFO_EFFECTIVE_URL, &url);
         DLOGE("Curl perform failed for url %s with result %s : %s ", url, curl_easy_strerror(res), errorBuffer);
+        *pCallResult = getServiceCallResultFromCurlStatus(res);
         CHK(FALSE, STATUS_IOT_FAILED);
+    } else {
+        UINT32 httpStatus;
+        curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &httpStatus);
+        *pCallResult = getServiceCallResultFromHttpStatus(httpStatus);
     }
     double downloadFileLenth;
     res = curl_easy_getinfo(curl, CURLINFO_CONTENT_LENGTH_DOWNLOAD, &downloadFileLenth);
@@ -106,7 +111,8 @@ CleanUp:
     return retStatus;
 }
 
-STATUS iotCurlHandlerForS3(PCHAR url, PCHAR region, PCHAR certPath, PAwsCredentialProvider pCredentialProvider, S3CurlCallbackFunc writeFn)
+STATUS iotCurlHandlerForS3(PCHAR url, PCHAR region, PCHAR certPath, PAwsCredentialProvider pCredentialProvider, S3CurlCallbackFunc writeFn,
+                           PUINT32 pCallResult)
 {
     ENTERS();
     STATUS retStatus = STATUS_SUCCESS;
@@ -143,7 +149,7 @@ STATUS iotCurlHandlerForS3(PCHAR url, PCHAR region, PCHAR certPath, PAwsCredenti
     PRINTF("s3 signAwsRequestInfo, region[%s], certpath[%s]\n", pRequestInfo->region, pRequestInfo->certPath);
     CHK_STATUS(signAwsRequestInfo(pRequestInfo));
     // Perform a blocking call
-    CHK_STATUS(blockingCurlCallForS3(pRequestInfo, &callInfo, writeFn));
+    CHK_STATUS(blockingCurlCallForS3(pRequestInfo, &callInfo, writeFn, pCallResult));
 
 CleanUp:
 

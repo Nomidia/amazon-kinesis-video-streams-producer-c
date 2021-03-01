@@ -55,7 +55,7 @@ typedef struct __S3IotCredentialProvider {
     S3BlockingServiceCallFunc serviceCallFn;
 } S3IotCredentialProvider, *PS3IotCredentialProvider;
 
-STATUS blockingCurlCallForS3(PRequestInfo, PCallInfo, S3CurlCallbackFunc);
+STATUS blockingCurlCallForS3(PRequestInfo, PCallInfo, S3CurlCallbackFunc, PUINT32 pCallResult);
 
 #ifdef __cplusplus
 }

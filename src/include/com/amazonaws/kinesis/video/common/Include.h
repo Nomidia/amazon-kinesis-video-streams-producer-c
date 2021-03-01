@@ -920,7 +920,7 @@ PUBLIC_API STATUS initializeSslCallbacks();
 PUBLIC_API STATUS releaseSslCallbacks();
 
 typedef SIZE_T (*S3CurlCallbackFunc)(PCHAR, SIZE_T, SIZE_T, PVOID);
-STATUS iotCurlHandlerForS3(PCHAR, PCHAR, PCHAR, PAwsCredentialProvider, S3CurlCallbackFunc);
+STATUS iotCurlHandlerForS3(PCHAR, PCHAR, PCHAR, PAwsCredentialProvider, S3CurlCallbackFunc, PUINT32);
 
 #ifdef __cplusplus
 }
